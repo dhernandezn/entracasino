@@ -6,7 +6,7 @@
 	
 class Consultas
 {
-	public $hoy;
+	public $hoy,$id_,$n_entrada;
 	public $mensaje;
 	public $mensaje2;
 	public $mensaje3;
@@ -812,5 +812,17 @@ class Consultas
 		$email = $resultado['email'];
 		$tel = $resultado['tel'];
 		$tel2 = $resultado['telmo'];
+	}
+	public function mostrarEntradas(){
+		try {
+			$dbh = Database::getInstance();
+			$consulta = $dbh -> prepare('SELECT * FROM log WHERE estado_ticket = 1 ORDER BY id_log DESC');
+    		$consulta->execute();
+			$resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+			return $resultado;
+		} catch (PDOException $e) {
+            error_log('Error al mostrar entradas: '.$e->getMessage());
+            return false;
+        }
 	}
 }

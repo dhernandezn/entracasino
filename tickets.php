@@ -2,34 +2,9 @@
 require_once('database.php');
 require_once("validar.php");
 try {
-
-    //llenador de tabla
-    $cbd = Database::getInstance();
-    $consulta = $cbd -> prepare('SELECT * FROM log WHERE estado_ticket = 1 ORDER BY id_log DESC');
-    $consulta->execute();
-    //paginador
-    // $consulta_pg = $cbd -> prepare('SELECT COUNT(*) as total_reg FROM colegios');
-    // $consulta_pg->execute();
-    // $res_pg=$consulta_pg->fetch(PDO::FETCH_ASSOC);
-    // $por_pg = 5;
-    // if (empty($_GET['pagina'])) {
-    //     $pagina = 1;
-    // }else{
-    //     $pagina = $_GET['pagina'];
-    // }
-    // $desde = ($pagina-1) * $por_pg;
-    // $total_pg = ceil($res_pg / $por_pg);
-
-    if (isset($_POST['insertar3'])) {
-        $model2 = new Consultas();
-        $model2 -> id_ = htmlspecialchars($_POST["id_cli"]);
-        $model2 -> n_entrada = htmlspecialchars($_POST["n_entrada"]);
-
-        $model2 -> editar_ticket();
-        $mensaje2 = $model2 -> mensaje2;
-        $mensaje3 = $model2 -> mensaje3; 
-        
-    }
+    $model = new Consultas();
+    $listarEntradas = $model->mostrarEntradas();
+ 
     session_start();
     if(isset($_POST['login'])){
         $user = $_POST['user'];
@@ -38,7 +13,7 @@ try {
         $dbh = Database::getInstance();
         echo "ESTAS INTENTANDO INGRESAR";
     }
-    
+
 
 } catch (PDOException $e) {
     echo "ERROR: " . $e->getMessage();
@@ -54,30 +29,20 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
-	<link rel="stylesheet" href="css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="stylesheet" href="css/font-awesome.css">
 	<link rel="stylesheet" href="css/style.css">
-
-	<script src="js/jquery.min.js"></script>
-	<script src="js/popper.min.js"></script>
-	<script src="js/bootstrap.min.4.5.0.js"></script>
-	<script src="js/js.js"></script>
-    <script>
-        // function mirar(){
-	
-        //     var a = document.getElementById("i_cli").value;
-        //     console.log(a);
-        //     var m = document.getElementById("rut_cli").value = a;
-        //     //var ru = document.getElementById("ru").value;
-        //     var d = document.getElementById("id_").value = m;
-        //     console.log("valor:"+a);
-        //     console.log(a+"->"+d);
-        //     console.log(d);
-            
-        // };
-    </script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="jquery-ui/jquery-ui.min.css">
+    <link rel="stylesheet" href="jquery-ui/jquery-ui.structure.min.css">
+    <link rel="stylesheet" href="jquery-ui/jquery-ui.theme.min.css">
+    <link rel="stylesheet" href="css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <link rel="stylesheet" href="css/brands.min.css">
+    <link rel="stylesheet" href="css/regular.min.css">
+    <link rel="stylesheet" href="css/solid.min.css">
+    <link rel="stylesheet" href="css/buttons.bootstrap5.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
     <script>
     function cap(){
         var a = '0';
@@ -88,7 +53,7 @@ try {
 			switch (a) {
 				case '1':
 					$("#editar_entrada").modal({backdrop:'static',keyboard:false});
-                       
+
                     console.log("AUTOEX");
 					break;
 				default:
@@ -125,37 +90,33 @@ try {
                         </div>
                     </div>
                 </div>
-                <table class="table table-striped table-hover">
-                    <thead>
+                <table id="listarEntr" class="table table-striped" style="width:100%">
+                    <thead class="table-dark">
                         <tr>
                             <th></th>
                             <th>RUT</th>
                             <th>FECHA</th>
                             <th>HORA</th>
-                            <th>N° ENTRADA</th>
-                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while($resultado = $consulta->fetch(PDO::FETCH_ASSOC)){ ?>
-                        <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
+                        <?php foreach($listarEntradas as $entradas){ ?>
                         <tr>
                             <td></td>
-                            
-                                <td><?php echo $resultado["rut_ingre"]?></td>
-                                <td><?php echo $resultado["fecha"]?></td>
-                                <td><?php echo $resultado["hora"]?></td>
-                                <td><input type="text" class="form-control" name="n_entrada" id="n_entrada" value="<?php echo $resultado["n_entrada"]?>" required></td>
-                                <td style="display:none;"><input type="hidden" name="id_" id="id_" value="<?php echo $resultado["id_log"]?>"><?php echo $resultado["id_log"]?></td>
-                                <td>
-                                    <input type="hidden" name="insertar3">
-                                    <input type="submit" value="&#xE254;" class="material-icons">
-                                </td>
-                            
+                            <td><?php echo $entradas["rut_ingre"]?></td>
+                            <td><?php echo $entradas["fecha"]?></td>
+                            <td><?php echo $entradas["hora"]?></td>
                         </tr>
-                        </form>
                         <?php } ?>
                     </tbody>
+                    <tfoot class="table-dark">
+                        <tr>
+                            <th></th>
+                            <th>RUT</th>
+                            <th>FECHA</th>
+                            <th>HORA</th>
+                        </tr>
+                    </tfoot>
                 </table>
                 <div class="clearfix">
                     <div class="hint-text">Mostrando <b>5</b> de <b><?php //echo $res_pg["total_reg"]?></b> entradas</div>
@@ -184,29 +145,75 @@ try {
                     <form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
                     <!-- Modal body -->
                     <div class="modal-body">
-                           
+
                             <div class="mb-3">
                                 <label for="user" class="form-label">Usuario</label>
                                 <input type="text" class="form-control" name="user" id="user" required/>
                             </div>
-                        
+
                             <div class="mb-3">
                                 <label for="pass" class="form-label">Contraseña</label>
                                 <input type="password" id="pass" class="form-control input-sm" name="pass" value="" onchange="mirarFecha()" required>
                             </div>
                         <hr>
                     </div>
-                    
+
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <input type="hidden" name="login">
-                        <button type="submit" name="btnAction" value="Confirmar" class="btn btn-primary">Entrar</button>   
+                        <button type="submit" name="btnAction" value="Confirmar" class="btn btn-primary">Entrar</button>
                     </div>
                     </form>
                 </div>
             </div>
-        </div> 
+        </div>
     </div>
-   
+    <script src="js/jquery-3.6.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="jquery-ui/jquery-ui.min.js"></script>
+    <script src="js/jquery.dataTables.min.js"></script>
+    <script src="js/dataTables.bootstrap5.min.js"></script>
+    <script src="js/fontawesome.min.js"></script>
+    <script src="js/brands.min.js"></script>
+    <script src="js/regular.min.js"></script>
+    <script src="js/solid.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/buttons.bootstrap5.js"></script>
+    <script src="js/dataTables.buttons.min.js"></script>
+    <script src="js/buttons.html5.min.js"></script>
+    <script src="js/buttons.print.min.js"></script>
+    <script src="js/jszip.min.js"></script>
+    <script src="js/pdfmake.min.js"></script>
+    <script src="js/vfs_fonts.js"></script>
+    <script src="js/buttons.colVis.min.js"></script>
+    <script>
+     $(document).ready(function () {
+        $('#listarEntr').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend:'csv',
+                    title: 'Historial Invitaciones',
+                    filename: 'Historial Invitaciones',
+                },
+                {
+                    extend:'pdf',
+                    title: 'Historial Invitaciones',
+                    filename: 'Historial Invitaciones',
+                },
+                {
+                    extend:'print',
+                    title: 'Historial Invitaciones',
+                    filename: 'Historial Invitaciones',
+                },
+                {
+                    extend:'excel',
+                    title: 'Historial Invitaciones',
+                    filename: 'Historial Invitaciones',
+                }
+            ]
+        });
+    });
+</script>
 </body>
 </html>
