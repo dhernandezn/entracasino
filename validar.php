@@ -151,14 +151,16 @@ class Consultas
 						else{ //preguntare si es pep
 							$rut_Api = str_replace("-","",$_POST['rut']);
 							$consultaApi = $this->consultarPEP($rut_Api);
-							// if(isset($consultaApi)){
-							// 	//echo " Tengo un array ";
-							// }else{
-							// 	//echo " NO tengo un array ";
-							// }
-							if(is_array($consultaApi)){ // Comprueba que contenga un array (Conexión API PEP)
+							if(isset($consultaApi)){
+								//echo " Tengo un array ";
+							}else{
+								//echo " NO tengo un array ";
+							}
+							if(is_array($consultaApi)){ 
+								echo "buscando con (API)";
+								// Comprueba que contenga un array (Conexión API PEP)
 								if(empty($consultaApi)){
-									//echo " Cliente no es PEP ";//Si array está vacio buscó pero no encontró rut
+									echo " Cliente no es PEP (API)";//Si array está vacio buscó pero no encontró rut
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 									$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
@@ -181,6 +183,7 @@ class Consultas
 									<input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
 									<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'> ";
 								}else{
+									echo " Cliente no es PEP (API)";
 									//echo "CLIENTE PEP"; //Encuentra rut como PEP
 									$myjson = json_encode($consultaApi);
 									$datos = json_decode($myjson,true);
@@ -219,34 +222,37 @@ class Consultas
 								$consulta3 -> execute();
 								}
 							}else{
-								//echo " NO Conectado ";
+								echo " BUSCANDO BD LOCAL ";
 								$consultaPepLocal = $this->consultarPEP_local($_POST['rut']);
-								if(isset($consultaPepLocal)){
-									//echo " PEP encontrado en DB Local ";
+								
+									if(!empty($consultaPepLocal)){
+										echo "CLIENTE PEP (LOCAL) ";
 									$buscarid = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
-								$buscarid -> bindValue(':v_rut',$_POST["rut"]);
-								$buscarid -> execute();
-								$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
-								$id_en = $idencontrada["id_log"];
-
-								$nombre = $resultado['nombre'];
-								$rut = $resultado['rut'];
-								$this -> mensaje="<input type='hidden' name='val1' value='2' id='val1'> Cliente PEP <br> <span class='material-icons'>
-								privacy_tip
-								</span><input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
-										<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'>					
-													<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar_pep.php'>
-															<input type='hidden' name='nombre' value='$nombre'>
-															<input type='hidden' name='rut' value='$rut'>
-													</form>";
-
-								$consulta3 = $dbh -> prepare("UPDATE log SET cli_pep = :v_2, estado_ticket = :v_4 WHERE rut_ingre = :v_n");
-								$consulta3 -> bindValue(':v_n', $_POST['rut']);
-								$consulta3 -> bindValue(':v_2', $auto = "si");
-								$consulta3 -> bindValue(':v_4', 1);
-								$consulta3 -> execute();
+									$buscarid -> bindValue(':v_rut',$_POST["rut"]);
+									$buscarid -> execute();
+									$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
+									$id_en = $idencontrada["id_log"];
+	
+									$nombre = $resultado['nombre'];
+									$rut = $resultado['rut'];
+									$this -> mensaje="<input type='hidden' name='val1' value='2' id='val1'> Cliente PEP <br> <span class='material-icons'>
+									privacy_tip
+									</span><input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
+											<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'>					
+														<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar_pep.php'>
+																<input type='hidden' name='nombre' value='$nombre'>
+																<input type='hidden' name='rut' value='$rut'>
+														</form>";
+	
+									$consulta3 = $dbh -> prepare("UPDATE log SET cli_pep = :v_2, estado_ticket = :v_4 WHERE rut_ingre = :v_n");
+									$consulta3 -> bindValue(':v_n', $_POST['rut']);
+									$consulta3 -> bindValue(':v_2', $auto = "si");
+									$consulta3 -> bindValue(':v_4', 1);
+									$consulta3 -> execute();
+									
+									
 								}else{
-									//cho " Cliente no es PEP ";
+									echo " Cliente no es PEP (LOCAL)";
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 								$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
@@ -886,10 +892,11 @@ class Consultas
 		$consulta_pep -> bindValue(':v_n', $_POST['rut']);
 		$consulta_pep -> execute();
 		$resultado = $consulta_pep -> fetch(PDO::FETCH_ASSOC);
+		//echo $resultado;
 		return $resultado;
 	}
 	function consultarPEP($dni) {
-		$baseUrl = "https://external-api.regcheq.com/record/{dni}/{{API_KEY_REGCHEQ}}";
+		$baseUrl = "httpsi://external-api.regcheq.com/record/{dni}/{{API_KEY_REGCHEQ}}";
 		$apiKey = "A4CF182C007DB3F9009B9666"; 
 		$urlDni = str_replace('{dni}',$dni, $baseUrl);
 		$url = str_replace('{{API_KEY_REGCHEQ}}', $apiKey, $urlDni);

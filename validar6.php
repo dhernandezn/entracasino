@@ -151,11 +151,11 @@ class Consultas
 						else{ //preguntare si es pep
 							$rut_Api = str_replace("-","",$_POST['rut']);
 							$consultaApi = $this->consultarPEP($rut_Api);
-							if(isset($consultaApi)){
-								//echo " Tengo un array ";
-							}else{
-								//echo " NO tengo un array ";
-							}
+							// if(isset($consultaApi)){
+							// 	//echo " Tengo un array ";
+							// }else{
+							// 	//echo " NO tengo un array ";
+							// }
 							if(is_array($consultaApi)){ // Comprueba que contenga un array (Conexión API PEP)
 								if(empty($consultaApi)){
 									//echo " Cliente no es PEP ";//Si array está vacio buscó pero no encontró rut
