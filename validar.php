@@ -151,16 +151,16 @@ class Consultas
 						else{ //preguntare si es pep
 							$rut_Api = str_replace("-","",$_POST['rut']);
 							$consultaApi = $this->consultarPEP($rut_Api);
-							if(isset($consultaApi)){
-								//echo " Tengo un array ";
-							}else{
-								//echo " NO tengo un array ";
-							}
+							// if(isset($consultaApi)){
+							// 	//echo " Tengo un array ";
+							// }else{
+							// 	//echo " NO tengo un array ";
+							// }
 							if(is_array($consultaApi)){ 
-								echo "buscando con (API)";
+								//echo "buscando con (API)";
 								// Comprueba que contenga un array (Conexión API PEP)
 								if(empty($consultaApi)){
-									echo " Cliente no es PEP (API)";//Si array está vacio buscó pero no encontró rut
+									//echo " Cliente no es PEP (API)";//Si array está vacio buscó pero no encontró rut
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 									$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
@@ -183,7 +183,7 @@ class Consultas
 									<input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
 									<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'> ";
 								}else{
-									echo " Cliente no es PEP (API)";
+									//echo " Cliente no es PEP (API)";
 									//echo "CLIENTE PEP"; //Encuentra rut como PEP
 									$myjson = json_encode($consultaApi);
 									$datos = json_decode($myjson,true);
@@ -222,11 +222,11 @@ class Consultas
 								$consulta3 -> execute();
 								}
 							}else{
-								echo " BUSCANDO BD LOCAL ";
+								//echo " BUSCANDO BD LOCAL ";
 								$consultaPepLocal = $this->consultarPEP_local($_POST['rut']);
 								
 									if(!empty($consultaPepLocal)){
-										echo "CLIENTE PEP (LOCAL) ";
+										//echo "CLIENTE PEP (LOCAL) ";
 									$buscarid = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
 									$buscarid -> bindValue(':v_rut',$_POST["rut"]);
 									$buscarid -> execute();
@@ -252,7 +252,7 @@ class Consultas
 									
 									
 								}else{
-									echo " Cliente no es PEP (LOCAL)";
+									//echo " Cliente no es PEP (LOCAL)";
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 								$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
