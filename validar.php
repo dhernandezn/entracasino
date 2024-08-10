@@ -896,7 +896,7 @@ class Consultas
 		return $resultado;
 	}
 	function consultarPEP($dni) {
-		$baseUrl = "httpsi://external-api.regcheq.com/record/{dni}/{{API_KEY_REGCHEQ}}";
+		$baseUrl = "https://external-api.regcheq.com/record/{dni}/{{API_KEY_REGCHEQ}}";
 		$apiKey = "A4CF182C007DB3F9009B9666"; 
 		$urlDni = str_replace('{dni}',$dni, $baseUrl);
 		$url = str_replace('{{API_KEY_REGCHEQ}}', $apiKey, $urlDni);
