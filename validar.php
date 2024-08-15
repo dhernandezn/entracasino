@@ -129,13 +129,16 @@ class Consultas
 						$tel2 = $resultado['telmo'];
 				
 						if($resultado){
-							$consulta3 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, n_entrada = :v_n_e, cli_pep = :v_nopep WHERE rut_ingre = :v_n");
+							$consulta3 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, n_entrada = :v_n_e, cli_pep = :v_nopep,
+							 cli_prohibido = :v_pro, cli_sospechoso = :v_sos WHERE rut_ingre = :v_n");
 							$consulta3 -> bindValue(':v_n', $_POST['rut']);
 							$consulta3 -> bindValue(':v_2', $auto = "si");
 							$consulta3 -> bindValue(':v_n_e', $ent = 0);
 							$consulta3 -> bindValue(':v_nopep', $ent = 'no');
+							$consulta3 -> bindValue(':v_pro', $ent = 'no');
+							$consulta3 -> bindValue(':v_sos', $ent = 'no');
 							$consulta3 -> execute();
-
+							// Agregar estados de cli_prohibido y cli_sospechoso cuando no lo es
 							//echo "Atención!!! Se reporta la presencia de ". $resp ." Cliente Auto excluido";
 							$this -> mensaje = "<input type='hidden' name='val1' value='1' id='val1'> Cliente Autoexcluido
 							
@@ -157,10 +160,18 @@ class Consultas
 							// 	//echo " NO tengo un array ";
 							// }
 							if(is_array($consultaApi)){ 
-								//echo "buscando con (API)";
+								echo "buscando con (API)";
+								$myjson = json_encode($consultaApi);
+								$datos = json_decode($myjson,true);
+								//print_r($datos['listas']['pepChile']['info']);
+								// if(empty($datos['listas']['pepChile']['info'])){
+								// 	echo " PEP pero sin datos";
+								// }else{
+								// 	print_r($datos['listas']['pepChile']['info']);
+								// }
 								// Comprueba que contenga un array (Conexión API PEP)
-								if(empty($consultaApi)){
-									//echo " Cliente no es PEP (API)";//Si array está vacio buscó pero no encontró rut
+								if(empty($consultaApi)||empty($datos['listas']['pepChile']['info'])){
+									echo " Cliente no es PEP (API)";//Si array está vacio buscó pero no encontró rut
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 									$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
@@ -183,21 +194,25 @@ class Consultas
 									<input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
 									<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'> ";
 								}else{
-									//echo " Cliente no es PEP (API)";
+									echo " Cliente es PEP (API)";
 									//echo "CLIENTE PEP"; //Encuentra rut como PEP
 									$myjson = json_encode($consultaApi);
 									$datos = json_decode($myjson,true);
-									$nombre = $datos['listas']['pepChile']['info']['name'];
-									$apellidoP = $datos['listas']['pepChile']['info']['fatherName'];
-									$apellidoM = $datos['listas']['pepChile']['info']['motherName'];
-									$posicion = $datos['listas']['pepChile']['info']['position'];
-									$datosArray = array(
-										"nombre" => $nombre,
-										"apellidoP" => $apellidoP,
-										"apellidoM" => $apellidoM,
-										"posicion" => $posicion
-									);
-									//print_r($datosArray);
+									print_r($datos['listas']['pepChile']['info']);
+
+									//exit();
+									// $datos = json_decode($myjson,true);
+									// $nombre = $datos['listas']['pepChile']['info']['name'];
+									// $apellidoP = $datos['listas']['pepChile']['info']['fatherName'];
+									// $apellidoM = $datos['listas']['pepChile']['info']['motherName'];
+									// $posicion = $datos['listas']['pepChile']['info']['position'];
+									// $datosArray = array(
+									// 	"nombre" => $nombre,
+									// 	"apellidoP" => $apellidoP,
+									// 	"apellidoM" => $apellidoM,
+									// 	"posicion" => $posicion
+									// );
+									// print_r($datosArray);
 									$buscarid = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
 									$buscarid -> bindValue(':v_rut',$_POST["rut"]);
 									$buscarid -> execute();
@@ -222,11 +237,11 @@ class Consultas
 								$consulta3 -> execute();
 								}
 							}else{
-								//echo " BUSCANDO BD LOCAL ";
+								echo " BUSCANDO BD LOCAL ";
 								$consultaPepLocal = $this->consultarPEP_local($_POST['rut']);
 								
 									if(!empty($consultaPepLocal)){
-										//echo "CLIENTE PEP (LOCAL) ";
+										echo "CLIENTE PEP (LOCAL) ";
 									$buscarid = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
 									$buscarid -> bindValue(':v_rut',$_POST["rut"]);
 									$buscarid -> execute();
@@ -252,7 +267,7 @@ class Consultas
 									
 									
 								}else{
-									//echo " Cliente no es PEP (LOCAL)";
+									echo " Cliente no es PEP (LOCAL)";
 									$this->mensajeP = '<label for="">asdads</label>';
 									// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
 								$consulta4 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_pep = :v_3, estado_ticket = :v_4, cli_sospechoso = :v_5 WHERE rut_ingre = :v_n");
