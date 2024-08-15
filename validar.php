@@ -198,7 +198,7 @@ class Consultas
 									//echo "CLIENTE PEP"; //Encuentra rut como PEP
 									$myjson = json_encode($consultaApi);
 									$datos = json_decode($myjson,true);
-									print_r($datos['listas']['pepChile']['info']);
+									//print_r($datos['listas']['pepChile']['info']);
 
 									//exit();
 									// $datos = json_decode($myjson,true);
