@@ -1,7 +1,8 @@
 <?php
 require_once('database.php');
 require_once("validar.php");
-
+phpinfo();
+exit();
 try {
 
     //llenador de tabla
