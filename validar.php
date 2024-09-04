@@ -158,7 +158,7 @@ class Consultas
 						else{ //preguntare si es pep
 							$rut_Api = str_replace("-","",$_POST['rut']);
 							//$consultaApi = $this->consultarPEP($rut_Api);
-							$datosApi = $this-> ConsultaApiRegcheq($rut_Api,'natural','A4CF182C007DB3F9009B9666');
+							$datosApi = $this-> consultaApiRegcheq($rut_Api,'natural','A4CF182C007DB3F9009B9666');
 		
 							//print_r($datosApi);exit();
 							if(is_array($datosApi)){
@@ -922,7 +922,7 @@ class Consultas
 		}
 		return $ultimos;
 	}
-	function ConsultaApiRegcheq($dni, $personType, $apiKey) {
+	function consultaApiRegcheq($dni, $personType, $apiKey) {
 		$url = 'https://external-api.regcheq.com/record/' . $apiKey;
 	
 		$data = array(
