@@ -201,15 +201,14 @@ $conteo = new Consultas();
 					mirar();
 					break;
 				case '4':
-					console.log("NORMAL");
-					console.log("PROH");
+					console.log("PROHIBIDO");
 					$("#modal_pr").modal({backdrop:'static',keyboard:false});
 					mirar();
 				case '5':
 					//window.alert("Documento ya escaneado!!");
-					console.log("NORMAL");
-					console.log("PROH");
+					console.log("YA ESCANEADO");
 					$("#modal_dup").modal({backdrop:'static',keyboard:false});
+					copiarValor();
 					mirar();
 				case '6':
 					console.log("SOSP");
@@ -222,7 +221,13 @@ $conteo = new Consultas();
 			}
 
 		};
-		
+		function copiarValor() {
+            // Obtiene el valor del primer input
+            let valor = document.getElementById('condicion').value;
+
+            // Asigna ese valor al segundo input
+            document.getElementById('condicion_cliente').textContent = valor;
+        }
 		
 		function checkRut(){
 			var rut = document.getElementById("rut").value.replace('.','');
@@ -620,6 +625,7 @@ $conteo = new Consultas();
 	        	<div class="modal-body">
 					<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 						<strong class="text_modal">El documento ah sido escaneado por 2da vez durante la jornada</strong><br><br>
+						<strong id="condicion_cliente" style="  color: #dfff00;"></strong><br>
 						<i class="material-icons">person_pin</i><br>
 						<button type="submit" name="pepDetected" class="btn btn-dark">Aceptar</button>
 					</form><br><hr>			

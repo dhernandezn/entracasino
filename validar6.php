@@ -307,60 +307,15 @@ class Consultas
 							$consulta_sosp -> bindValue(':v_n', $_POST['rut']);
 							$consulta_sosp -> execute();
 							$resultado_sosp = $consulta_sosp -> fetch(PDO::FETCH_ASSOC);
-							// busco el id de registro del rut como pep
-							$buscarid = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
-							$buscarid -> bindValue(':v_rut',$_POST["rut"]);
-							$buscarid -> execute();
-							$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
-							$id_en = $idencontrada["id_log"];
-
-							$nombre = $resultado_sosp['nombre'];
-							$rut = $resultado_sosp['rut'];
-
+							
 							if ($resultado_sosp) {
-								//si encuentra el rut como sospechoso se crea envía formulario con los datos del cliente pep para luego
-								//almacenarlos en el log
-								// $this -> mensaje2="<input type='hidden' name='val1' value='2' id='val1'> Cliente SOSPECHOSO 666<br><br>";
-								$this -> mensaje="<input type='hidden' name='val1' value='6' id='val1'> Cliente SOSPECHOSO <br> <span class='material-icons'>
-								privacy_tip
-								</span><input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
-										<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'>						
-													<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar_pep.php'>
-															<input type='hidden' name='nombre' value='$nombre'>
-															<input type='hidden' name='rut' value='$rut'>
-													</form>";
-
 								$consulta3 = $dbh -> prepare("UPDATE log SET cli_sospechoso = :v_2, estado_ticket = :v_4 WHERE rut_ingre = :v_n");
 								$consulta3 -> bindValue(':v_n', $_POST['rut']);
 								$consulta3 -> bindValue(':v_2', $auto = "si");
 								$consulta3 -> bindValue(':v_4', 1);
 								$consulta3 -> execute();
 							}
-							// else{
-							// 	$this->mensajeP = '<label for="">asdads</label>';
-							// 		// $this->mensaje2="<input type='hidden' name='val1' value='0' id='val1'> Cliente Puede Ingresar <br><br> <img src='img/check.png' id='chk'>";
-							// 	$consulta5 = $dbh -> prepare("UPDATE log SET autoexc = :v_2, cli_sospechoso = :v_3, estado_ticket = :v_4 WHERE rut_ingre = :v_n");
-							// 	$consulta5 -> bindValue(':v_n', $_POST['rut']);
-							// 	$consulta5 -> bindValue(':v_2', $auto = "no");
-							// 	$consulta5 -> bindValue(':v_3', $auto = "no");
-							// 	$consulta5 -> bindValue(':v_4', $auto = 1);
-							// 	$consulta5 -> execute();
-								
-								
-							// 	//echo " Cliente puede ingresar ";
-							// 	$buscaridp = $dbh -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
-							// 	$buscaridp -> bindValue(':v_rut',$_POST['rut']);
-							// 	$buscaridp -> execute();
-							// 	$idencontrada = $buscaridp -> fetch(PDO::FETCH_ASSOC);
-							// 	$id_en = $idencontrada["id_log"];
-								
-							// 	$this -> mensaje = "<input type='hidden' name='val1' value='3' id='val1'> Cliente Puede Ingresar 666<br><br> 
-							// 	<img src='img/check.png' id='chk'>
-							// 	<input type='hidden' name='id_cli' value='".$id_en."' id='id_cli'>
-							// 	<input type='hidden' name='id_cliente' value='".$id_en."' id='id_cliente'> ";
-							// }	
-						
-						
+							
 						}
 
 					}

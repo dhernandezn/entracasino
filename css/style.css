@@ -426,7 +426,8 @@ table.table .avatar {
 }
 .modal-content{
 	border: solid 2px red;
-    background: #090909;
+    background: #343434;
+	color: brown;
 }
 #warning_ico{
 	margin: 0;
@@ -536,8 +537,9 @@ table.table .avatar {
 		width: 60%;
 	
 	}
-
 }
 .text_modal{
-	color: rgb(165,42,42);
+	/*color: rgb(165,42,42);*/
+	color:chartreuse;
+	font-size: medium;
 }
