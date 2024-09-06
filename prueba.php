@@ -2,7 +2,9 @@
 require_once("validar.php");
 
 $cons = new Consultas();
-$ver = $cons -> consultaApiRegcheq('91884828','natural','A4CF182C007DB3F9009B9666');
+$ver = $cons -> buscarRut("17746");
+
+//$ver = $cons -> consultaApiRegcheq('91884828','natural','A4CF182C007DB3F9009B9666');
 echo $ver;
 
 ?>

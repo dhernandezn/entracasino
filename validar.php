@@ -398,99 +398,100 @@ class Consultas
 
 	public function ingresar_entrada(){
 	
-	// ACÁ DEBO IMPLEMENTAR LA PROMO!!
+		// ACÁ DEBO IMPLEMENTAR LA PROMO!!
 
-	$rut = $_POST["rut_cli"];
-	$entrada = $_POST["n_entrada"];
-	//Obtengo el Último ID del log
-	$cbd = Database::getInstance();
-	$busqueda_id = $cbd -> prepare("SELECT MAX(id_log) AS id FROM log WHERE rut_ingre = :v_rr");
-	$busqueda_id -> bindValue(':v_rr',$rut);
-	$busqueda_id->execute();
-	$res = $busqueda_id -> fetch(PDO::FETCH_ASSOC);
-	$id_ult_b=$res["id"];
-	  //echo "ultimo ID ".$id_ult_b."<br>";
-	
-	
-	// Último rut en base al ID anterior
-	$last_rut = $cbd -> prepare("SELECT rut_ingre AS lrut FROM log WHERE id_log = :v_mid");
-	$last_rut -> bindValue(':v_mid',$id_ult_b);
-	$last_rut -> execute();
-	$u_rut = $last_rut->fetch(PDO::FETCH_ASSOC);
-	$lrut = $u_rut["lrut"];
-	 //echo "Ultimo rut ".$lrut;
-	// mostrar ultimo rut
-
-	$rev_pep = $cbd -> prepare("SELECT * FROM pep WHERE pep_rut = :v_r");
-	$rev_pep -> bindValue(':v_r',$lrut);
-	$rev_pep -> execute();
-	$res_pep = $rev_pep->fetch(PDO::FETCH_ASSOC);
-
-	if ($res_pep) {
-		$modal = '2';
-		// echo $modal;
-	}else{
-		$modal = '3';
-		// echo $modal;
-	}
-
-	$buscar_entr = $cbd -> prepare("SELECT * FROM log WHERE n_entrada = :v_ne");
-	$buscar_entr -> bindValue(':v_ne', $entrada);
-	$buscar_entr -> execute();
-	$respuesta = $buscar_entr -> fetch (PDO::FETCH_ASSOC);
-
-	// echo "ID del registro con la entrada ".$respuesta["id_log"];
-	//echo "ult rut".$u_rut;
-	
-	if ($respuesta){
-		$buscarid = $cbd -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
-		$buscarid -> bindValue(':v_rut',$lrut);
-		$buscarid -> execute();
-		$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
-		$id_en = $idencontrada["id_log"];
-
-		$this -> mensaje2 ="<input type='hidden' name='val1' value='$modal' id='val1'> Entrada ya Ingresada
-		<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar.php'>
-									<input type='hidden' id='rut_cli' name='rut_cli' value='$lrut'>
-									";
-		$this -> mensaje3 = "<spam>ENTRADA YA INGRESADA!!</spam><input type='hidden' name='id_cli' value='$id_en' id='id_cli'> ";
-		
-	}else{
 		$rut = $_POST["rut_cli"];
-		$chb = $_POST["promocheck"];
-		if (isset($_POST['promocheck']) && $_POST['promocheck'] =='1'){
-			$fhoy = (new DateTime('now'))->format('Y-m-d');
-		$ultdiam = date('t');
-		$fvenc = date("$ultdiam-m-Y");
-		// Primer dia del mes siguiente
-		$frenuev = (new DateTime("$fvenc + 1 day"))->format('Y-m-d');
+		$entrada = $_POST["n_entrada"];
+		//Obtengo el Último ID del log
+		$cbd = Database::getInstance();
+		$busqueda_id = $cbd -> prepare("SELECT MAX(id_log) AS id FROM log WHERE rut_ingre = :v_rr");
+		$busqueda_id -> bindValue(':v_rr',$rut);
+		$busqueda_id->execute();
+		$res = $busqueda_id -> fetch(PDO::FETCH_ASSOC);
+		$id_ult_b=$res["id"];
+		//echo "ultimo ID ".$id_ult_b."<br>";
 		
-		$fechapcal = strtotime($fhoy);
-		$fechavpcal = strtotime($frenuev);
+	
+		// Último rut en base al ID anterior
+		$last_rut = $cbd -> prepare("SELECT rut_ingre AS lrut FROM log WHERE id_log = :v_mid");
+		$last_rut -> bindValue(':v_mid',$id_ult_b);
+		$last_rut -> execute();
+		$u_rut = $last_rut->fetch(PDO::FETCH_ASSOC);
+		$lrut = $u_rut["lrut"];
+		//echo "Ultimo rut ".$lrut;
+		// mostrar ultimo rut
 
-		$findrutpromo = $cbd -> prepare("SELECT * FROM promo WHERE rut = :v_r ORDER BY cod Desc LIMIT 1");
-		$findrutpromo -> bindValue(':v_r',$lrut);
-		$findrutpromo->execute();
-		$buscrutpromo = $findrutpromo -> fetch(PDO::FETCH_ASSOC);
-		//echo "</br>";
+		$rev_pep = $cbd -> prepare("SELECT * FROM pep WHERE pep_rut = :v_r");
+		$rev_pep -> bindValue(':v_r',$lrut);
+		$rev_pep -> execute();
+		$res_pep = $rev_pep->fetch(PDO::FETCH_ASSOC);
 
-		$buscarid = $cbd -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
-		$buscarid -> bindValue(':v_rut',$lrut);
-		$buscarid -> execute();
-		$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
-		$id_en = $idencontrada["id_log"];
-		if ($buscrutpromo!="") {
-			// echo "Encontrado";
-			// echo "</br>";
-			$fecharen =  strtotime($buscrutpromo['f_renuevo']);
-			if($fecharen <= $fechapcal){
-				//echo "Puede usar nuevamente el beneficio";
-				$ingrpromo = $cbd -> prepare("INSERT INTO promo(rut,f_entrada,f_renuevo)VALUES(:v_r,:v_fe,:v_fr)");
-				$ingrpromo -> bindValue(':v_r',$lrut);
-				$ingrpromo -> bindValue(':v_fe',$fhoy);
-				$ingrpromo -> bindValue(':v_fr',$frenuev);
-				$ingrpromo -> execute();
-			}else{
+		if ($res_pep) {
+			$modal = '2';
+			// echo $modal;
+		}else{
+			$modal = '3';
+			// echo $modal;
+		}
+
+		$buscar_entr = $cbd -> prepare("SELECT * FROM log WHERE n_entrada = :v_ne");
+		$buscar_entr -> bindValue(':v_ne', $entrada);
+		$buscar_entr -> execute();
+		$respuesta = $buscar_entr -> fetch (PDO::FETCH_ASSOC);
+
+		// echo "ID del registro con la entrada ".$respuesta["id_log"];
+		//echo "ult rut".$u_rut;
+	
+		if ($respuesta){
+			$buscarid = $cbd -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
+			$buscarid -> bindValue(':v_rut',$lrut);
+			$buscarid -> execute();
+			$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
+			$id_en = $idencontrada["id_log"];
+
+			$this -> mensaje2 ="<input type='hidden' name='val1' value='$modal' id='val1'> Entrada ya Ingresada
+			<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar.php'>
+										<input type='hidden' id='rut_cli' name='rut_cli' value='$lrut'>
+										";
+			$this -> mensaje3 = "<spam>ENTRADA YA INGRESADA!!</spam><input type='hidden' name='id_cli' value='$id_en' id='id_cli'> ";
+			
+		}
+		else{
+			$rut = $_POST["rut_cli"];
+			$chb = $_POST["promocheck"];
+			if (isset($_POST['promocheck']) && $_POST['promocheck'] =='1'){
+				$fhoy = (new DateTime('now'))->format('Y-m-d');
+			$ultdiam = date('t');
+			$fvenc = date("$ultdiam-m-Y");
+			// Primer dia del mes siguiente
+			$frenuev = (new DateTime("$fvenc + 1 day"))->format('Y-m-d');
+			
+			$fechapcal = strtotime($fhoy);
+			$fechavpcal = strtotime($frenuev);
+
+			$findrutpromo = $cbd -> prepare("SELECT * FROM promo WHERE rut = :v_r ORDER BY cod Desc LIMIT 1");
+			$findrutpromo -> bindValue(':v_r',$lrut);
+			$findrutpromo->execute();
+			$buscrutpromo = $findrutpromo -> fetch(PDO::FETCH_ASSOC);
+			//echo "</br>";
+
+			$buscarid = $cbd -> prepare("SELECT * FROM `log` WHERE rut_ingre = :v_rut ORDER BY id_log Desc LIMIT 1");
+			$buscarid -> bindValue(':v_rut',$lrut);
+			$buscarid -> execute();
+			$idencontrada = $buscarid -> fetch(PDO::FETCH_ASSOC);
+			$id_en = $idencontrada["id_log"];
+			if ($buscrutpromo!="") {
+				// echo "Encontrado";
+				// echo "</br>";
+				$fecharen =  strtotime($buscrutpromo['f_renuevo']);
+				if($fecharen <= $fechapcal){
+					//echo "Puede usar nuevamente el beneficio";
+					$ingrpromo = $cbd -> prepare("INSERT INTO promo(rut,f_entrada,f_renuevo)VALUES(:v_r,:v_fe,:v_fr)");
+					$ingrpromo -> bindValue(':v_r',$lrut);
+					$ingrpromo -> bindValue(':v_fe',$fhoy);
+					$ingrpromo -> bindValue(':v_fr',$frenuev);
+					$ingrpromo -> execute();
+				}else{
 				$disp = (new DateTime($buscrutpromo['f_renuevo']))->format('d-m-Y');
 				// echo "Ya usó el beneficio este mes";
 				// echo "</br>";
@@ -501,9 +502,9 @@ class Consultas
 											";
 						$this -> mensajep = "<spam class='aviso'>EL CLIENTE YA USÓ EL 2 X 1!!</spam></br><spam>DISPONIBLE NUEVAMENTE EL: $disp</spam><input type='hidden' name='id_cli' value='$id_en' id='id_cli'> ";
 				//echo "aqui";
+				}
 			}
-			
-		}else{
+		else{
 			//echo "NO Encontrado";
 			$ingrpromo = $cbd -> prepare("INSERT INTO promo(rut,f_entrada,f_renuevo)VALUES(:v_r,:v_fe,:v_fr)");
 			$ingrpromo -> bindValue(':v_r',$lrut);
@@ -511,23 +512,21 @@ class Consultas
 			$ingrpromo -> bindValue(':v_fr',$frenuev);
 			$ingrpromo -> execute();
 		}
-
 			$buscarPromo = $cbd -> prepare("INSERT INTO promo(rut,f_entrada,f_renuevo)VALUES(:v_r,:v_fe,:v_fr)");
 			$buscarPromo -> bindValue(':v_r',$lrut);
 			$buscarPromo -> bindValue(':v_fe',$fhoy);
 			// $buscarPromo -> bindValue(':v_fr',$frenuev);
 		//exit();
-
 		}
 		else {
 			$this -> mensaje3 = "<strong>Entrada válida!</strong>";
-		//exit();
-		$actualizar_d = $cbd -> prepare("UPDATE log SET n_entrada = :v_en, estado_ticket = :v_et  WHERE id_log=:v_id ");
-		$actualizar_d -> bindValue(':v_en', $entrada);
-		$actualizar_d -> bindValue(':v_id', $id_ult_b);
-		$actualizar_d -> bindValue(':v_et', 2);
-		$actualizar_d -> execute();
-		header("location: index.php");
+			//exit();
+			$actualizar_d = $cbd -> prepare("UPDATE log SET n_entrada = :v_en, estado_ticket = :v_et  WHERE id_log=:v_id ");
+			$actualizar_d -> bindValue(':v_en', $entrada);
+			$actualizar_d -> bindValue(':v_id', $id_ult_b);
+			$actualizar_d -> bindValue(':v_et', 2);
+			$actualizar_d -> execute();
+			header("location: index.php");
 		}
 		
 		
@@ -537,63 +536,63 @@ class Consultas
 
 	public function editar_ticket(){
 	
-	$id = $_POST["id_cli"];
-	$id_ed = $_POST["id_"];
-	$entrada = $_POST["n_entrada"];
+		$id = $_POST["id_cli"];
+		$id_ed = $_POST["id_"];
+		$entrada = $_POST["n_entrada"];
 
-	//Último ID log
-	$cbd = Database::getInstance();
-	$busqueda_id = $cbd -> prepare("SELECT MAX(id_log) AS id FROM log;");
-	$busqueda_id->execute();
-	$res = $busqueda_id -> fetch(PDO::FETCH_ASSOC);
-	$id_ult_b=$res["id"];
-	// echo "ultimo ID ".$id_ult_b."<br>";
-	//$this -> mensaje2 = "<spam style='color:red;'>Esta entrada ya fué Ingresada!</spam><input type='hidden' id='rut_cli' value=".$respuesta["id_log"].">";
+		//Último ID log
+		$cbd = Database::getInstance();
+		$busqueda_id = $cbd -> prepare("SELECT MAX(id_log) AS id FROM log;");
+		$busqueda_id->execute();
+		$res = $busqueda_id -> fetch(PDO::FETCH_ASSOC);
+		$id_ult_b=$res["id"];
+		// echo "ultimo ID ".$id_ult_b."<br>";
+		//$this -> mensaje2 = "<spam style='color:red;'>Esta entrada ya fué Ingresada!</spam><input type='hidden' id='rut_cli' value=".$respuesta["id_log"].">";
 
-	// Último rut en base al ID anterior
-	$last_rut = $cbd -> prepare("SELECT rut_ingre AS lrut FROM log WHERE id_log = :v_mid");
-	$last_rut -> bindValue(':v_mid',$id_ult_b);
-	$last_rut -> execute();
-	$u_rut = $last_rut -> fetch(PDO::FETCH_ASSOC);
-	$lrut = $u_rut["lrut"];
-	// echo "Ultimo rut ".$lrut;
-	// mostrar ultimo rut
+		// Último rut en base al ID anterior
+		$last_rut = $cbd -> prepare("SELECT rut_ingre AS lrut FROM log WHERE id_log = :v_mid");
+		$last_rut -> bindValue(':v_mid',$id_ult_b);
+		$last_rut -> execute();
+		$u_rut = $last_rut -> fetch(PDO::FETCH_ASSOC);
+		$lrut = $u_rut["lrut"];
+		// echo "Ultimo rut ".$lrut;
+		// mostrar ultimo rut
 
-	$rev_pep = $cbd -> prepare("SELECT * FROM pep WHERE pep_rut = :v_r");
-	$rev_pep -> bindValue(':v_r',$lrut);
-	$rev_pep -> execute();
-	$res_pep = $rev_pep->fetch(PDO::FETCH_ASSOC);
+		$rev_pep = $cbd -> prepare("SELECT * FROM pep WHERE pep_rut = :v_r");
+		$rev_pep -> bindValue(':v_r',$lrut);
+		$rev_pep -> execute();
+		$res_pep = $rev_pep->fetch(PDO::FETCH_ASSOC);
 
-	$buscar_entr = $cbd -> prepare("SELECT * FROM log WHERE n_entrada = :v_ne");
-	$buscar_entr -> bindValue(':v_ne', $entrada);
-	$buscar_entr -> execute();
-	$respuesta = $buscar_entr -> fetch (PDO::FETCH_ASSOC);
+		$buscar_entr = $cbd -> prepare("SELECT * FROM log WHERE n_entrada = :v_ne");
+		$buscar_entr -> bindValue(':v_ne', $entrada);
+		$buscar_entr -> execute();
+		$respuesta = $buscar_entr -> fetch (PDO::FETCH_ASSOC);
 	
-	// echo "ID del registro con la entrada ".$respuesta["id_log"];
-	//echo "ult rut".$u_rut;
+		// echo "ID del registro con la entrada ".$respuesta["id_log"];
+		//echo "ult rut".$u_rut;
 
-	if ($respuesta){
-		$this -> mensaje2 ="<input type='hidden' name='val1' value='1' id='val1'> Entrada ya Ingresada
-		<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar.php'>
-									<input type='hidden' id='rut_cli' name='rut_cli' value='$lrut'>
-									";
-		$this -> mensaje3 = "<spam>ENTRADA YA INGRESADA!!</spam><input type='hidden' name='id_cli' value='$id' id='id_cli'>";
+		if ($respuesta){
+			$this -> mensaje2 ="<input type='hidden' name='val1' value='1' id='val1'> Entrada ya Ingresada
+			<form method='post' id='Frm2' onsubmit='return tomarmsj();' class='form_ocultos' enctype='multipart/form-data' action='enviar.php'>
+										<input type='hidden' id='rut_cli' name='rut_cli' value='$lrut'>
+										";
+			$this -> mensaje3 = "<spam>ENTRADA YA INGRESADA!!</spam><input type='hidden' name='id_cli' value='$id' id='id_cli'>";
 
-	}else{
-		$this -> mensaje3 = "<strong>Entrada válida</strong>";
-		$actualizar_d = $cbd -> prepare("UPDATE log SET n_entrada = :v_en, estado_ticket = :v_e  WHERE id_log=:v_id ");
-		$actualizar_d -> bindValue(':v_en', $entrada);
-		$actualizar_d -> bindValue(':v_e', 3);
-		$actualizar_d -> bindValue(':v_id', $id_ed);
-		$actualizar_d -> execute();
-		header('Location:tickets.php');
+		}else{
+			$this -> mensaje3 = "<strong>Entrada válida</strong>";
+			$actualizar_d = $cbd -> prepare("UPDATE log SET n_entrada = :v_en, estado_ticket = :v_e  WHERE id_log=:v_id ");
+			$actualizar_d -> bindValue(':v_en', $entrada);
+			$actualizar_d -> bindValue(':v_e', 3);
+			$actualizar_d -> bindValue(':v_id', $id_ed);
+			$actualizar_d -> execute();
+			header('Location:tickets.php');
 		}
 
 	
 	}
 	public function pausar_entrada(){
-	$id1 = $_POST["id_log2"];
-	$id2 = $_POST["id_log"];
+		$id1 = $_POST["id_log2"];
+		$id2 = $_POST["id_log"];
 
 	if($id1 != null){
 		$id = $id1;
@@ -886,7 +885,7 @@ class Consultas
 		$tel = $resultado['tel'];
 		$tel2 = $resultado['telmo'];
 	}
-	function consultarPEP_local($rut){
+	public function consultarPEP_local($rut){
 		$dbh = Database::getInstance();
 		$consulta_pep = $dbh -> prepare ("SELECT pep_nombre as nombre, pep_rut as rut FROM pep WHERE pep_rut = :v_n");
 		$consulta_pep -> bindValue(':v_n', $_POST['rut']);
@@ -922,7 +921,7 @@ class Consultas
 		}
 		return $ultimos;
 	}
-	function consultaApiRegcheq($dni, $personType, $apiKey) {
+	public function consultaApiRegcheq($dni, $personType, $apiKey) {
 		$url = 'https://external-api.regcheq.com/record/' . $apiKey;
 	
 		$data = array(
@@ -940,5 +939,14 @@ class Consultas
 		$response = json_decode(curl_exec($ch),true);
 		curl_close($ch);
 		return $response;
+	}
+	public function buscarRut($rut){
+		$dbh = Database::getInstance();
+		$listar10 = $dbh -> prepare("SELECT * FROM `log` WHERE `rut_ingre` LIKE :rt ORDER BY id_log DESC");
+		$listar10 -> bindValue(":rt","%".$rut."%");
+		$listar10 -> execute();
+		$resultado = $listar10->fetchAll(PDO::FETCH_ASSOC);
+		//print_r($resultado);exit();
+		return $resultado;
 	}
 }

@@ -471,8 +471,7 @@ $conteo = new Consultas();
 				<div class="#">
 					<input type="hidden" name="insertar">
 					<input type="submit" class="boton_cons" onclick="obt_rut();checkRut();" name="login" value="Consultar"><br><br>
-					<!--<strong><?php //echo $mensaje; ?></strong>-->
-						
+					<!--<strong><?php //echo $mensaje; ?></strong>-->	
 				</div>
 			</form><br>
 
