@@ -89,10 +89,10 @@ if (isset($_POST['en_espera'])) {
 
 $conteo = new Consultas();
 	//echo "fecha actual ".$tiempoActual;
-	//$jornada2 = $conteo -> obtenerJornada("12:00:00","06:00:00",$hora_FechaActual);
+	$jornada2 = $conteo -> obtenerJornada("12:00:00","06:00:00",$hora_FechaActual);
 	//$jornada2 = $conteo -> obtenerJornada("12:00:00","06:00:00","13-09-2023 00:59:00");
-	echo $jornada2;
-	$cli_ingre = $conteo -> contarEntradasHoy($tiempoActual,"12:00:00","06:00:00");
+	//echo "JORNADAA ".$jornada2;
+	$cli_ingre = $conteo -> contarEntradasHoy($jornada2,"12:00:00","06:00:00");
 	$respuesta_cli = "Cantidad de Personas Ingresadas Hoy: ".$cli_ingre;
 } catch (PDOException $e) {
 	 echo "ERROR: " . $e->getMessage();

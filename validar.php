@@ -815,26 +815,28 @@ class Consultas
 		return $cli_ingre;
 	}
 	public function obtenerJornada($inicioJornada,$finJornada,$fechaActual){
-		
-		echo "Fecha y hora actual $fechaActual <br>";
+		$fechaActual = date("d-m-Y");
+		$fecha = DateTime::createFromFormat('d-m-Y', $fechaActual);
+		//echo "Fecha y hora actual $fechaActual <br>";
 		$fechaYhoraIj = date("d-m-Y",strtotime($fechaActual))." ".$inicioJornada;
-		echo "Fecha y Hora Inicio jornada $fechaYhoraIj <br>";
+		//echo "Fecha y Hora Inicio jornada $fechaYhoraIj <br>";
 		$fechaYhoraFj = date("d-m-Y",strtotime("+1 day",strtotime($fechaActual)))." ".$finJornada;
-		echo "Fecha y hora Fin jornada $fechaYhoraFj <br>"; 
+		//echo "Fecha y hora Fin jornada $fechaYhoraFj <br>"; 
 		if($fechaActual >= $fechaYhoraIj && $fechaActual <= $fechaYhoraFj){
 			return "Dentro de jornada ".$fechaActual = date("d-m-Y",strtotime($fechaActual));
 		}else{
-			return "Fuera de Jornada";
+			$fecha->modify('-1 day');
+			$jornada = $fecha->format('d-m-Y');
+			return $jornada;
 		}
-		echo "ss";
 		// if($fechaActual >= $fechaYhoraIj && $fechaActual > $fechaYhoraFj){
 		// 	echo "+1 dia". date("d-m-Y",strtotime("+1 day",strtotime($fechaActual)));
 		// }
 	}
-	public function contarEntradasHoy($fecha,$horaInicioJ,$horaFinJ){
-		$fechaIniReves = date("Y-m-d",strtotime($fecha))." ".$horaInicioJ;
+	public function contarEntradasHoy($jornada,$horaInicioJ,$horaFinJ){
+		$fechaIniReves = date("Y-m-d",strtotime($jornada))." ".$horaInicioJ;
 		//$fechaYhoraFj = date("d-m-Y",strtotime("+1 day",strtotime($fecha)))." ".$horaFinJ;
-		$fechaFinReves = date("Y-m-d",strtotime("+1 day",strtotime($fecha)))." ".$horaFinJ;
+		$fechaFinReves = date("Y-m-d",strtotime("+1 day",strtotime($jornada)))." ".$horaFinJ;
 		 //echo "Inicio: ".$fechaYhoraIj;
 		//  echo "<br>"; 
 		//  echo "Fecha Revés ".$fechaIniReves."<br>";
